@@ -26,6 +26,10 @@ public class MainWatcher implements Watcher, Runnable {
     @Override
     public void run() {
         try {
+            if (zk.exists(znode, this) != null) {
+                runExternalApp();
+                App.synchronizedPrintln("Current descendants count: " + getDescendantsCount(this));
+            }
             synchronized (this) {
                 while (running) {
                     zk.exists(znode, this);
@@ -45,7 +49,7 @@ public class MainWatcher implements Watcher, Runnable {
                     runExternalApp();
                 }
                 zk.getChildren(watchedEvent.getPath(), this);
-                App.synchronizedPrintln("Current descendants count: " + getDescendantsCount());
+                App.synchronizedPrintln("Current descendants count: " + getDescendantsCount(null));
             } catch (KeeperException | InterruptedException e) {
                 App.synchronizedPrintln("Event.EventType.NodeCreated case encountered an exception");
             }
@@ -54,7 +58,7 @@ public class MainWatcher implements Watcher, Runnable {
                 killExternalApp();
             }
         } else if (watchedEvent.getType() == Event.EventType.NodeChildrenChanged) {
-            App.synchronizedPrintln("Current descendants count: " + getDescendantsCount());
+            App.synchronizedPrintln("Current descendants count: " + getDescendantsCount(null));
             try {
                 List<String> children = zk.getChildren(watchedEvent.getPath(), this);
                 for (String child : children) {
@@ -74,19 +78,19 @@ public class MainWatcher implements Watcher, Runnable {
         }
     }
 
-    private int getDescendantsCount() {
+    public int getDescendantsCount(Watcher watcher) {
         int counter = 0;
         String currentNode;
 
         try {
-            if (zk.exists(znode, false) != null) {
+            if (zk.exists(znode, watcher) != null) {
                 List<String> childrenPaths = new LinkedList<>();
                 childrenPaths.add(znode);
                 while (!childrenPaths.isEmpty()) {
                     currentNode = childrenPaths.get(0);
                     childrenPaths.remove(0);
                     try {
-                        List<String> currentNodeChildren = zk.getChildren(currentNode, false);
+                        List<String> currentNodeChildren = zk.getChildren(currentNode, watcher);
                         for (String child : currentNodeChildren) {
                             childrenPaths.add(currentNode + "/" + child);
                             counter++;

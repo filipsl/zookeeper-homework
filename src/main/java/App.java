@@ -18,6 +18,10 @@ public class App {
         mainWatcher.printTree(full);
     }
 
+    private static int getDescendantsCount(){
+        return mainWatcher.getDescendantsCount(null);
+    }
+
     private static void handleInput() {
         Scanner scanner = new Scanner(System.in);
         while (true) {
@@ -26,9 +30,13 @@ public class App {
                 printTree(true);
             } else if (msg.startsWith("t")) {
                 printTree(false);
+            } else if (msg.startsWith("d")) {
+                App.synchronizedPrintln("Current descendants count: " + getDescendantsCount());
             } else if (msg.startsWith("q")) {
                 mainWatcher.close();
                 break;
+            } else if (msg.startsWith("h")) {
+                App.synchronizedPrintln("Help: t - print tree (tf - for tree with full paths), d - descendants count, q - quit");
             } else {
                 App.synchronizedPrintln("Unrecognized command");
             }

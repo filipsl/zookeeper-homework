@@ -44,13 +44,6 @@ public class TreePrinter {
                         }
 
                     }
-
-//                    while (!currentChildrenPaths.isEmpty()) {
-////                        currentNode = currentChildrenPaths.get(0);
-////                        currentChildrenPaths.remove(0);
-////                        printWithIntent(currentNode, nodeListsStack.size()-1);
-//
-//                    }
                 }
             }
         } catch (KeeperException | InterruptedException e) {
