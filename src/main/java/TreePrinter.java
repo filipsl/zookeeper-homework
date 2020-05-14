@@ -13,7 +13,7 @@ public class TreePrinter {
     }
 
     public void printTree() {
-        String currentNode = "";
+        String currentNode;
         Stack<List<String>> nodeListsStack = new Stack<>();
         try {
             if (zk.exists(znode, false) != null) {
@@ -22,28 +22,21 @@ public class TreePrinter {
                 nodeListsStack.push(childrenPaths);
 
                 while (!nodeListsStack.empty()) {
-                    App.synchronizedPrintln("Stack size: " + nodeListsStack.size());
                     List<String> currentChildrenPaths = nodeListsStack.pop();
+                    if (!currentChildrenPaths.isEmpty()) {
+                        nodeListsStack.push(currentChildrenPaths);
+                    }
                     while (!currentChildrenPaths.isEmpty()) {
                         currentNode = currentChildrenPaths.get(0);
                         currentChildrenPaths.remove(0);
-                        App.synchronizedPrintln("Current node: " + currentNode);
-//                        for(String node : currentChildrenPaths){
-//                            App.synchronizedPrintln("");
-//                        }
-                        nodeListsStack.push(currentChildrenPaths);
                         printWithIntent(currentNode, nodeListsStack.size()-1);
-//                        if(!currentChildrenPaths.isEmpty()){
-//                        }
                         try {
                             List<String> currentNodeChildren = zk.getChildren(currentNode, false);
                             List<String> newChildrenPaths = new LinkedList<>();
                             for (String child : currentNodeChildren) {
                                 newChildrenPaths.add(currentNode + "/" + child);
-                                App.synchronizedPrintln("Adding child of " + currentNode + ": " + currentNode + "/" + child);
                             }
                             if (!newChildrenPaths.isEmpty()) {
-                                App.synchronizedPrintln("Adding new paths to stack");
                                 nodeListsStack.push(newChildrenPaths);
                             }
                         } catch (KeeperException e) {
