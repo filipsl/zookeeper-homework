@@ -33,6 +33,7 @@ public class MainWatcher implements Watcher, Runnable {
                 }
             }
         } catch (InterruptedException | KeeperException e) {
+            App.synchronizedPrintln("MainWatcher error");
         }
     }
 
@@ -75,7 +76,7 @@ public class MainWatcher implements Watcher, Runnable {
 
     private int getDescendantsCount() {
         int counter = 0;
-        String currentNode = "";
+        String currentNode;
 
         try {
             if (zk.exists(znode, false) != null) {
@@ -136,7 +137,7 @@ public class MainWatcher implements Watcher, Runnable {
         }
     }
 
-    public void printTree() {
-        treePrinter.printTree();
+    public void printTree(boolean full) {
+        treePrinter.printTree(full);
     }
 }

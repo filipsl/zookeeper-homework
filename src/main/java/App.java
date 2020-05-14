@@ -14,17 +14,19 @@ public class App {
         System.out.print(msg);
     }
 
-    private static void printTree() {
-        mainWatcher.printTree();
+    private static void printTree(boolean full) {
+        mainWatcher.printTree(full);
     }
 
     private static void handleInput() {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             String msg = scanner.nextLine();
-            if (msg.startsWith("tree")) {
-                printTree();
-            } else if (msg.startsWith("exit")) {
+            if (msg.startsWith("tf")) {
+                printTree(true);
+            } else if (msg.startsWith("t")) {
+                printTree(false);
+            } else if (msg.startsWith("q")) {
                 mainWatcher.close();
                 break;
             } else {

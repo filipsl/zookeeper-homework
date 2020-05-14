@@ -12,7 +12,7 @@ public class TreePrinter {
         this.znode = znode;
     }
 
-    public void printTree() {
+    public void printTree(boolean full) {
         String currentNode;
         Stack<List<String>> nodeListsStack = new Stack<>();
         try {
@@ -23,13 +23,11 @@ public class TreePrinter {
 
                 while (!nodeListsStack.empty()) {
                     List<String> currentChildrenPaths = nodeListsStack.pop();
-                    if (!currentChildrenPaths.isEmpty()) {
-                        nodeListsStack.push(currentChildrenPaths);
-                    }
-                    while (!currentChildrenPaths.isEmpty()) {
+                    if(!currentChildrenPaths.isEmpty()){
                         currentNode = currentChildrenPaths.get(0);
                         currentChildrenPaths.remove(0);
-                        printWithIntent(currentNode, nodeListsStack.size()-1);
+                        printWithIntent(currentNode, nodeListsStack.size(), full);
+                        nodeListsStack.push(currentChildrenPaths);
                         try {
                             List<String> currentNodeChildren = zk.getChildren(currentNode, false);
                             List<String> newChildrenPaths = new LinkedList<>();
@@ -44,7 +42,15 @@ public class TreePrinter {
                         } catch (Exception e) {
                             App.synchronizedPrintln("Error occurred in obtaining child count");
                         }
+
                     }
+
+//                    while (!currentChildrenPaths.isEmpty()) {
+////                        currentNode = currentChildrenPaths.get(0);
+////                        currentChildrenPaths.remove(0);
+////                        printWithIntent(currentNode, nodeListsStack.size()-1);
+//
+//                    }
                 }
             }
         } catch (KeeperException | InterruptedException e) {
@@ -52,9 +58,13 @@ public class TreePrinter {
         }
     }
 
-    private void printWithIntent(String msg, int intent) {
+    private void printWithIntent(String msg, int intent, boolean full) {
         for (int i = 0; i < intent; i++) {
             App.synchronizedPrint("|   ");
+        }
+        if(!full){
+            int last_slash = msg.lastIndexOf("/");
+            msg = msg.substring(last_slash);
         }
         App.synchronizedPrint(msg + "\n");
     }
