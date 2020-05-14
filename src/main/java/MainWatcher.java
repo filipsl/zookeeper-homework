@@ -43,37 +43,37 @@ public class MainWatcher implements Watcher, Runnable {
 
     @Override
     public void process(WatchedEvent watchedEvent) {
-        if (watchedEvent.getType() == Event.EventType.NodeCreated) {
-            try {
-                if (watchedEvent.getPath().equals(znode)) {
-                    runExternalApp();
-                }
-                zk.getChildren(watchedEvent.getPath(), this);
-                App.synchronizedPrintln("Current descendants count: " + getDescendantsCount(null));
-            } catch (KeeperException | InterruptedException e) {
-                App.synchronizedPrintln("Event.EventType.NodeCreated case encountered an exception");
-            }
-        } else if (watchedEvent.getType() == Event.EventType.NodeDeleted) {
-            if (watchedEvent.getPath().equals(znode)) {
-                killExternalApp();
-            }
-        } else if (watchedEvent.getType() == Event.EventType.NodeChildrenChanged) {
-            App.synchronizedPrintln("Current descendants count: " + getDescendantsCount(null));
-            try {
-                List<String> children = zk.getChildren(watchedEvent.getPath(), this);
-                for (String child : children) {
-                    String childPath = watchedEvent.getPath() + "/" + child;
-                    zk.exists(childPath, this);
-                    zk.getChildren(childPath, this);
-                }
-            } catch (KeeperException e) {
-                //Ignore this, thrown when node has no children
-            } catch (Exception e) {
-                App.synchronizedPrintln("Error occurred accessing children");
-            }
-        }
-
         synchronized (this) {
+            if (watchedEvent.getType() == Event.EventType.NodeCreated) {
+                try {
+                    if (watchedEvent.getPath().equals(znode)) {
+                        runExternalApp();
+                    }
+                    zk.getChildren(watchedEvent.getPath(), this);
+                    App.synchronizedPrintln("Current descendants count: " + getDescendantsCount(null));
+                } catch (KeeperException | InterruptedException e) {
+                    App.synchronizedPrintln("Event.EventType.NodeCreated case encountered an exception");
+                }
+            } else if (watchedEvent.getType() == Event.EventType.NodeDeleted) {
+                if (watchedEvent.getPath().equals(znode)) {
+                    killExternalApp();
+                }
+            } else if (watchedEvent.getType() == Event.EventType.NodeChildrenChanged) {
+                App.synchronizedPrintln("Current descendants count: " + getDescendantsCount(null));
+                try {
+                    List<String> children = zk.getChildren(watchedEvent.getPath(), this);
+                    for (String child : children) {
+                        String childPath = watchedEvent.getPath() + "/" + child;
+                        zk.exists(childPath, this);
+                        zk.getChildren(childPath, this);
+                    }
+                } catch (KeeperException e) {
+                    //Ignore this, thrown when node has no children
+                } catch (Exception e) {
+                    App.synchronizedPrintln("Error occurred accessing children");
+                }
+            }
+
             notifyAll();
         }
     }
